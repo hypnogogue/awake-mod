@@ -1,5 +1,6 @@
 -- awake-mod
--- 1.0.0
+-- 1.0.0 
+-- based off 2.4.0 awake by @tehn
 --
 -- top loop plays notes
 -- transposed by bottom loop
@@ -484,11 +485,11 @@ function redraw()
   screen.line_width(1)
   screen.aa(0)
   -- edit point
-  if mode==1 or mode==5 then
+  if mode==1 then
     screen.move(26 + edit_pos*6, edit_ch==1 and 33 or 63)
     screen.line_rel(4,0)
     screen.level(15)
-    if alt and mode==1 then
+    if alt then
       screen.move(0, 30)
       screen.level(1)
       screen.text("prob")
@@ -497,7 +498,14 @@ function redraw()
       screen.text(params:get("probability"))
     end
     screen.stroke()
+  end  
+  if mode==5 then
+    screen.move(26 + edit_pos*6, 33)
+    screen.line_rel(4,0)
+    screen.level(15)
+    screen.stroke()
   end
+
   -- loop lengths
   screen.move(32,30)
   screen.line_rel(one.length*6-2,0)
