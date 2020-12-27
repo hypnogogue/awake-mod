@@ -31,9 +31,11 @@
 -- E2/E3 changes
 --
 -- MOD
--- K2/K3 inc/dec step mod
+-- K2 increase step mod *clear all mod
+-- K3 decrease step mod *rand mod
 -- E2 select step
 -- E3 mod trig division
+
 
 engine.name = 'PolyPerc'
 
@@ -77,7 +79,7 @@ function clear_note_mod()
   }
   for i=1,16 do
     params:delta("note_mod_"..i, 0)
-    params:delta("note_mod_trig"..i, 0)
+    params:delta("mod_trig"..i, 0)
   end
 end
 
