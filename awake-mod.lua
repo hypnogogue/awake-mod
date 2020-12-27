@@ -69,7 +69,7 @@ three = {
   note_mod_trig_count = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 }
 
-function clear_note_mod(){
+function clear_note_mod()
   three = {
     note_mod = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
     note_mod_trig = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
@@ -79,7 +79,7 @@ function clear_note_mod(){
     params:delta("note_mod_"..i, 0)
     params:delta("note_mod_trig"..i, 0)
   end
-}
+end
 
 function add_pattern_params() 
   params:add_separator()
