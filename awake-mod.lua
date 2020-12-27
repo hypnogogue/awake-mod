@@ -410,7 +410,7 @@ function enc(n, delta)
   elseif mode == 5 then --mod
     if n==2 then
       --delta 1 or 2 when moved to the right, -1 or -2 when moved to the left
-      local p = (edit_ch == 1) and one.length or two.length
+      local p = one.length
       edit_pos = util.clamp(edit_pos+delta,1,p)
     elseif n==3 then
       params:delta("note_mod_"..edit_pos, delta)
