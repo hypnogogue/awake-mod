@@ -76,8 +76,8 @@ function clear_note_mod(){
     note_mod_trig_count = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
   }
   for i=1,16 do
-    params:set("note_mod_"..i, 0)
-    params:set("note_mod_trig"..i, 0)
+    params:delta("note_mod_"..i, 0)
+    params:delta("note_mod_trig"..i, 0)
   end
 }
 
