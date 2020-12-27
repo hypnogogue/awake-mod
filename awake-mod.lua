@@ -572,7 +572,7 @@ function redraw()
       screen.move(26 + i*6, 31)
       screen.line_rel(4,0)
     end
-    screen.level((i == one.pos and mod_play == 1) and 15 or ((edit_ch == 1 and one.data[i] > 0) and 4 or (mode==2 and 6 or 1)))
+    screen.level((i == one.pos and mod_play == 1) and 15 or  (mode==2 and 6 or 1))
     screen.stroke()
   end
 
