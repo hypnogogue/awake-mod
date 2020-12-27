@@ -69,6 +69,18 @@ three = {
   note_mod_trig_count = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 }
 
+function clear_note_mod(){
+  three = {
+    note_mod = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    note_mod_trig = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
+    note_mod_trig_count = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+  }
+  for i=1,16 do
+    params:set("note_mod_"..i, 0)
+    params:set("note_mod_trig"..i, 0)
+  end
+}
+
 function add_pattern_params() 
   params:add_separator()
   params:add_group("pattern 1",17)
@@ -468,13 +480,21 @@ function key(n,z)
     if n==2 then
     elseif n==3 then
     end
-  elseif mode == 5 then --notemod
-    if n==2 and z==1 then
-      --z is 1 when pressed, 0 when let go
-      params:delta("mod_trig_"..edit_pos, -1)
-    elseif n==3 and z==1 then
-      params:delta("mod_trig_"..edit_pos, 1)
-    end
+  elseif mode == 5 then --mod
+    if not alt==true then
+      if n==2 and z==1 then
+        --z is 1 when pressed, 0 when let go
+        params:delta("mod_trig_"..edit_pos, -1)
+      elseif n==3 and z==1 then
+        params:delta("mod_trig_"..edit_pos, 1)
+      end
+    else
+      if n==2 and z==1 then
+        clear_note_mod()
+      elseif n==3 and z==1 then
+        params:delta("mod_trig_"..edit_pos, 1)
+      end
+
   end
 
   redraw()
