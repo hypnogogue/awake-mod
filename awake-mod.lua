@@ -494,6 +494,7 @@ function key(n,z)
       elseif n==3 and z==1 then
         params:delta("mod_trig_"..edit_pos, 1)
       end
+    end
 
   end
 
