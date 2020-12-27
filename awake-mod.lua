@@ -83,6 +83,17 @@ function clear_note_mod()
   end
 end
 
+function set_random_note_mod()
+  for i=1,16 do
+    r1 = math.random(0,8)
+    params:set("note_mod_"..i, r1)
+    three.note_mod[i] = r1
+    r2 = math.random(0,8)
+    params:set("mod_trig_"..i, r2)
+    three.note_mod_trig[i] = r2
+  end
+end
+
 function add_pattern_params() 
   params:add_separator()
   params:add_group("pattern 1",17)
@@ -494,7 +505,7 @@ function key(n,z)
       if n==2 and z==1 then
         clear_note_mod()
       elseif n==3 and z==1 then
-        params:delta("mod_trig_"..edit_pos, 1)
+        set_random_note_mod()
       end
     end
 
