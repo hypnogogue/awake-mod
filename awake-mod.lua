@@ -531,7 +531,7 @@ function redraw()
     mod_active = 0
     if three.note_mod[i] > 0 and three.note_mod_trig[i] > 0 then
       screen.move(26 + i*6, 31)
-      screen.line_rel(2,0)
+      screen.line_rel(4,0)
     end
     screen.level((i == one.pos and mod_play == 1) and 15 or ((edit_ch == 1 and one.data[i] > 0) and 4 or (mode==2 and 6 or 1)))
     screen.stroke()
