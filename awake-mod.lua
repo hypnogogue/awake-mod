@@ -88,7 +88,12 @@ function set_random_note_mod()
     r1 = math.random(0,8)
     params:set("note_mod_"..i, r1)
     three.note_mod[i] = r1
-    r2 = math.random(0,8)
+    --coin flip if mod is active, if active choose a division of 2 or higher
+    if math.random(0,1) = 1 then
+      r2 = math.random(2,8)
+    else
+      r2 = 0
+    end
     params:set("mod_trig_"..i, r2)
     three.note_mod_trig[i] = r2
   end
