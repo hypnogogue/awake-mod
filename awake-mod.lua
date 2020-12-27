@@ -1,5 +1,6 @@
 -- awake-mod
--- 1.0.0 
+-- 1.0.0 @shoggoth
+-- llllllll.co/t/awake-mod
 -- based off 2.4.0 awake by @tehn
 --
 -- top loop plays notes
