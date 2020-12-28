@@ -86,7 +86,7 @@ end
 
 function set_random_note_mod()
   for i=1,16 do
-    r1 = math.random(-7,8)
+    r1 = math.random(-7,9)
     params:set("note_mod_"..i, r1)
     three.note_mod[i] = r1
     --coin flip if mod is active, if active choose a division of 2 or higher
