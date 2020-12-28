@@ -8,24 +8,34 @@ Just a Norns!
 
 Documentation
 
-Use E1 to navigate to the MOD screen
+E1 to navigate to the MOD screen
 
 E2 selects which MOD step to edit
 
 E3 selects the mod value for the step:
 
 off - mod not active
+
 1 to 8 - transpose note up when mod step is active
+
 -1 to -7 - transpose note down when mod step is active
+
 mute - mutes current step when mod step is active
+
 K3 increases the trig division/K2 decreases
+
 -off/mod not active
 
 /1 to activate MOD every time the step is active (useful for ‘auditioning’ the transpose)
+
 /2 for every other time the step is active
+
 etc
+
 up to /8 for every 8th time the step is active
+
 Hold K1 + K2 to clear all active MOD steps
+
 Hold K1 + K3 to randomize all MOD steps
 
 Notes:
