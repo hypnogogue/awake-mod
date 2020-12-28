@@ -7,6 +7,7 @@ Requirements
 Just a Norns!
 
 Documentation
+
 Use E1 to navigate to the MOD screen
 
 E2 selects which MOD step to edit
