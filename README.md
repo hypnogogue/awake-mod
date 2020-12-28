@@ -1,7 +1,6 @@
 # awake-mod
 
-Awake-mod
-Expands on the original Awake app for Norns by adding a page for “Mod” - per-step transpose “scheduling” on every 2nd/3rd/etc. time the step is active
+Awake-mod expands on the original Awake app for Norns by adding a page for “Mod” - per-step transpose “scheduling” on every 2nd/3rd/etc. time the step is active
 
 note: I do not have a grid so I didnt touch any of the Grid code
 Requirements
