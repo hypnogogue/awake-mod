@@ -1,7 +1,8 @@
 -- awake-mod
--- 1.0.1 @shoggoth
+-- 1.0.2 @shoggoth
 -- llllllll.co/t/awake-mod
--- based off 2.4.0 awake by @tehn
+-- based off 
+-- 2.4.0 awake by @tehn
 --
 -- top loop plays notes
 -- transposed by bottom loop
@@ -32,8 +33,8 @@
 -- E2/E3 changes
 --
 -- MOD
--- K2 increase trig *clear all mod
--- K3 decrease trig mod *rand mod
+-- K2 incr trig *clear all mod
+-- K3 decr trig mod *rand mod
 -- E2 select step
 -- E3 mod value
 
@@ -581,6 +582,10 @@ function redraw()
       screen.line_rel(4,0)
     end
     screen.level((i == one.pos and mod_play == 1) and 15 or  (mode==2 and 6 or 1))
+    if i == one.pos and mod_play == 1 then
+      screen.move(26 + i*6, 28 - one.data[i]*3)
+      screen.text(".")
+    end
     screen.stroke()
   end
 
