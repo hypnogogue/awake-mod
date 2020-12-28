@@ -1,4 +1,4 @@
-# awake-
+# awake-mod
 
 Awake-mod
 adds an additional page for “Mod” - per-step transpose “scheduling” on every 2nd/3rd/etc. time the step is active
