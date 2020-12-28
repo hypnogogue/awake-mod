@@ -1,5 +1,5 @@
 -- awake-mod
--- 1.0.0 @shoggoth
+-- 1.0.1 @shoggoth
 -- llllllll.co/t/awake-mod
 -- based off 2.4.0 awake by @tehn
 --
@@ -32,10 +32,10 @@
 -- E2/E3 changes
 --
 -- MOD
--- K2 increase step mod *clear all mod
--- K3 decrease step mod *rand mod
+-- K2 increase trig *clear all mod
+-- K3 decrease trig mod *rand mod
 -- E2 select step
--- E3 mod trig division
+-- E3 mod value
 
 
 engine.name = 'PolyPerc'
@@ -86,7 +86,7 @@ end
 
 function set_random_note_mod()
   for i=1,16 do
-    r1 = math.random(0,8)
+    r1 = math.random(-7,8)
     params:set("note_mod_"..i, r1)
     three.note_mod[i] = r1
     --coin flip if mod is active, if active choose a division of 2 or higher
@@ -128,7 +128,7 @@ function add_pattern_params()
   
   params:add_group("pattern 1 mod",32)
   for i=1,16 do
-    params:add{type = "number", id= ("note_mod_"..i), name = ("note mod "..i), min=0, max=8, 
+    params:add{type = "number", id= ("note_mod_"..i), name = ("note mod "..i), min=-7, max=9, 
       default = 0,
       action=function(x)three.note_mod[i] = x end }
     params:add{type = "number", id= ("mod_trig_"..i), name = ("mod trig "..i), min=0, max=8,
@@ -209,17 +209,24 @@ function step()
     mod_play = 0
     note_mod=0
     --if there is no step but mod would trigger a note this step
-    if three.note_mod[one.pos] > 0 and three.note_mod_trig_count[one.pos] == three.note_mod_trig[one.pos] then
+    if three.note_mod[one.pos] ~= 0 and three.note_mod_trig_count[one.pos] == three.note_mod_trig[one.pos] then
       mod_play = 1
       note_mod=three.note_mod[one.pos]
     end
+    mod_mute=0
+    if three.note_mod[one.pos] ==9 and three.note_mod_trig_count[one.pos] == three.note_mod_trig[one.pos] then
+      mod_mute=1
+    end
+    
 
       
 
-    if one.data[one.pos] > 0 or mod_play==1 then
+    if (one.data[one.pos] > 0 or mod_play==1) and mod_mute==0 then
       note_sum=one.data[one.pos]+two.data[two.pos]+note_mod
       if note_sum > 16 then
-        note_sum =note_sum - 16 --math exceeds scale, wraparound note
+        note_sum = note_sum - 16 --mods exceeds scale, wraparound note
+      elseif note_sum <= 0 then
+        note_sum = note_sum + 16 --mods under scale threshold, wraparound note
       end
       local note_num = notes[note_sum]
       local freq = MusicUtil.note_num_to_freq(note_num)
@@ -569,7 +576,7 @@ function redraw()
   --mod
     for i=1,one.length do
     mod_active = 0
-    if three.note_mod[i] > 0 and three.note_mod_trig[i] > 0 then
+    if three.note_mod[i] ~= 0 and three.note_mod_trig[i] > 0 then
       screen.move(26 + i*6, 31)
       screen.line_rel(4,0)
     end
@@ -611,17 +618,35 @@ function redraw()
     screen.level(1)
     screen.move(0,30)
     screen.text("mod")
-    screen.level(15)
+    if three.note_mod[edit_pos]==9 then
+      mod_display = "mute"
+      mod_screen_level = 15
+    elseif three.note_mod[edit_pos]==0 then
+      mod_display = "off"
+      mod_screen_level = 2
+    else
+      mod_display = three.note_mod[edit_pos]
+      mod_screen_level = 15
+    end
+    screen.level(mod_screen_level)
     screen.move(0,40)
-    --display note mod here
-    screen.text(three.note_mod[edit_pos]) 
+    screen.text(mod_display) 
     screen.level(1)
     screen.move(0,50)
     screen.text("trig")
-    screen.level(15)
+    if three.note_mod_trig[edit_pos] == 0 then
+      trig_display = "off"
+    else
+      trig_display = "/"..three.note_mod_trig[edit_pos]
+    end
+    if mod_display=="off" or trig_display == "off" then
+      trig_screen_level = 2
+    else
+      trig_screen_level = 15
+    end
+    screen.level(trig_screen_level)
     screen.move(0,60)
-    ---display trig division here
-    screen.text("/"..three.note_mod_trig[edit_pos])
+    screen.text(trig_display)
   end
 
 
