@@ -52,11 +52,15 @@ trig = /2
 Every other time the step is active, it will trigger the first note in the scale.
 
 –FNDTN–
+
 K2 to set foundation
+
 K3 to reset all steps and lengths to foundation
 
 The idea is:
 
 set the foundation to save all your current steps, length, mod steps
+
 add, remove, screw up your sequence
+
 reset everything you screwed up back to the foundation… meant to be a performance tool
