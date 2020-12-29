@@ -1,5 +1,5 @@
 -- awake-mod
--- 1.0.2 @shoggoth
+-- 1.0.3 @shoggoth
 -- llllllll.co/t/awake-mod
 -- based off 
 -- 2.4.0 awake by @tehn
@@ -10,7 +10,7 @@
 -- (grid optional)
 --
 -- E1 changes modes:
--- STEP/LOOP/SOUND/OPTION
+-- STEP/LOOP/SOUND/OPTION/MOD/FNDTN
 --
 -- K1 held is alt *
 --
@@ -37,6 +37,10 @@
 -- K3 decr trig mod *rand mod
 -- E2 select step
 -- E3 mod value
+--
+-- FNDTN
+-- K2 set foundation
+-- K3 reset to foundation
 
 
 engine.name = 'PolyPerc'
@@ -53,7 +57,7 @@ g = grid.connect()
 alt = false
 
 mode = 1
-mode_names = {"STEP","LOOP","SOUND","OPTION","MOD"}
+mode_names = {"STEP","LOOP","SOUND","OPTION","MOD","FNDTN"}
 
 one = {
   pos = 0,
@@ -144,6 +148,56 @@ set_loop_data = function(which, step, val)
   params:set(which.."_data_"..step, val)
 end
 
+function set_foundation()
+  foundation_one = {
+    pos = 0,
+    length = one.length,
+    data = {}
+  }
+  foundation_two = {
+    pos = 0,
+    length = two.length,
+    data = {}
+  }
+  foundation_three = {
+    note_mod = {},
+    note_mod_trig={},
+    note_mod_trig_count={}
+  }
+  for i=1,16 do
+    foundation_one.data[i]=one.data[i]
+    foundation_two.data[i]=two.data[i]
+    foundation_three.note_mod[i]=three.note_mod[i]
+    foundation_three.note_mod_trig[i]=three.note_mod_trig[i]
+  end
+  
+  foundation_set = true
+end
+
+
+function reset_to_foundation()
+  reset_foundation = false
+  if foundation_set==false then return end
+  one.pos = 0
+  one.length = foundation_one.length
+  two.pos = 0
+  two.length = foundation_two.length
+  three.note_mod_trig_count = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+  for i=1,16 do
+    one.data[i]=foundation_one.data[i]
+    two.data[i]=foundation_two.data[i]
+    three.note_mod[i]=foundation_three.note_mod[i]
+    three.note_mod_trig[i]=foundation_three.note_mod_trig[i]
+  end
+    for i=1,16 do
+    params:set("one_length",one.length)
+    params:set("two_length",two.length)
+    params:set("one_data_"..i,one.data[i])
+    params:set("two_data_"..i,two.data[i])
+    params:set("note_mod_"..i,three.note_mod[i])
+    params:set("mod_trig_"..i,three.note_mod_trig[i])
+  end
+end
 
 local midi_out_device
 local midi_out_channel
@@ -197,6 +251,7 @@ function step()
     clock.sync(1/params:get("step_div"))
 
     all_notes_off()
+    if reset_foundation == true then reset_to_foundation() end
 
     one.pos = one.pos + 1
     if one.pos > one.length then one.pos = 1 end
@@ -340,6 +395,8 @@ function init()
   cs_PAN = controlspec.new(-1,1, 'lin',0,0,'')
   params:add{type="control",id="pan",controlspec=cs_PAN,
     action=function(x) engine.pan(x) end}
+  
+  foundation_set = false
 
   hs.init()
   
@@ -404,7 +461,11 @@ end
 
 function enc(n, delta)
   if n==1 then
-    mode = util.clamp(mode+delta,1,5)
+    mode = util.clamp(mode+delta,1,6)
+    if mode == 5 then 
+      local p = one.length
+      edit_pos = util.clamp(edit_pos+delta,1,p) 
+    end
   elseif mode == 1 then --step
     if n==2 then
       if alt then
@@ -522,7 +583,12 @@ function key(n,z)
         set_random_note_mod()
       end
     end
-
+  elseif mode == 6 then
+    if n==2 and z==1 then
+      set_foundation()
+    elseif n==3 and z==1 then
+      reset_foundation = true
+    end
   end
 
   redraw()
@@ -652,6 +718,13 @@ function redraw()
     screen.level(trig_screen_level)
     screen.move(0,60)
     screen.text(trig_display)
+  elseif mode==6 then
+    screen.level(1)
+    screen.move(0,30)
+    screen.text("set")
+    screen.level(15)
+    screen.move(0,40)
+    screen.text(foundation_set==true and "yes" or "no") 
   end
 
 
