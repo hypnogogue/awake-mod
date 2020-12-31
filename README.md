@@ -1,12 +1,17 @@
 # awake-mod
+Expands on the original Awake app for Norns by adding pages/features:
 
-Awake-mod expands on the original Awake app for Norns by adding a page for “Mod” - per-step transpose “scheduling” on every 2nd/3rd/etc. time the step is active
+MOD - per-step transpose “scheduling” on every 2nd/3rd/etc. time the step is active
+
+FNDTN - establish a foundational sequence and reset to that foundation later
 
 note: I do not have a grid so I didnt touch any of the Grid code
 Requirements
 Just a Norns!
 
 Documentation
+
+---MOD---
 
 E1 to navigate to the MOD screen
 
@@ -40,8 +45,22 @@ Hold K1 + K3 to randomize all MOD steps
 
 Notes:
 MOD steps are indicated by a grey ‘step’ underneath the LOOP line
-when a MOD step is activated it will turn from grey to white
+when a MOD step is activated it will turn from grey to white and a small dot will appear above the step
 
 Neat trick: if a regular step is inactive (i.e. no note), you can trigger a note to play using the MOD step. Ex: MOD = 1
 trig = /2
 Every other time the step is active, it will trigger the first note in the scale.
+
+–FNDTN–
+
+K2 to set foundation
+
+K3 to reset all steps and lengths to foundation
+
+The idea is:
+
+set the foundation to save all your current steps, length, mod steps
+
+add, remove, screw up your sequence
+
+reset everything you screwed up back to the foundation… meant to be a performance tool
