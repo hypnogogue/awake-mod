@@ -1,5 +1,5 @@
 -- awake-mod
--- 1.0.3 @shoggoth
+-- 1.0.4 @shoggoth
 -- llllllll.co/t/awake-mod
 -- based off 
 -- 2.4.0 awake by @tehn
@@ -10,7 +10,9 @@
 -- (grid optional)
 --
 -- E1 changes modes:
--- STEP/LOOP/SOUND/OPTION/MOD/FNDTN
+-- STEP/LOOP/SOUND
+-- OPTION/MOD
+-- XPLSN/FNDTN
 --
 -- K1 held is alt *
 --
@@ -38,6 +40,10 @@
 -- E2 select step
 -- E3 mod value
 --
+-- XPLSN
+-- K2 set fuse
+-- K3 set type
+--
 -- FNDTN
 -- K2 set foundation
 -- K3 reset to foundation
@@ -57,7 +63,11 @@ g = grid.connect()
 alt = false
 
 mode = 1
-mode_names = {"STEP","LOOP","SOUND","OPTION","MOD","FNDTN"}
+mode_names = {"STEP","LOOP","SOUND","OPTION","MOD","XPLSN","FNDTN"}
+
+xplsn_types = {"morph1","morph2","stp-rnd","mod-rnd","fndtn"}
+xplsn_type = 1
+display_explosion = false
 
 one = {
   pos = 0,
@@ -178,6 +188,8 @@ end
 function reset_to_foundation()
   reset_foundation = false
   if foundation_set==false then return end
+  --start_foundation_animation = true
+  --fndtn_frame=10
   one.pos = 0
   one.length = foundation_one.length
   two.pos = 0
@@ -241,6 +253,24 @@ function morph(loop, which)
   end
 end
 
+function explosion()
+  if xplsn_type == 1 then
+    morph(one,"one")
+  elseif xplsn_type == 2 then
+    morph(two,"two")
+  elseif xplsn_type == 3 then
+    random()
+  elseif xplsn_type == 4 then
+    set_random_note_mod()
+  elseif xplsn_type == 5 then
+    reset_foundation = true
+  end
+  if fuse_repeat==false then
+    fuse_lit=false
+  end
+  display_explosion=true
+end
+
 function random()
   for i=1,one.length do set_loop_data("one", i, math.floor(math.random()*9)) end
   for i=1,two.length do set_loop_data("two", i, math.floor(math.random()*9)) end
@@ -253,8 +283,17 @@ function step()
     all_notes_off()
     if reset_foundation == true then reset_to_foundation() end
 
+
     one.pos = one.pos + 1
-    if one.pos > one.length then one.pos = 1 end
+    if one.pos > one.length then 
+      one.pos = 1 
+      if fuse_repeat then
+        explosion()
+      elseif fuse_lit then 
+        params:delta("fuse",-1) 
+        if fuse == 0 then explosion() end
+      end
+    end
     two.pos = two.pos + 1
     if two.pos > two.length then two.pos = 1 end
     
@@ -401,7 +440,14 @@ function init()
   hs.init()
   
   add_pattern_params()
+  params:add_separator()
+  params:add{type = "number", id= "fuse", name = "fuse", min=0, max=17, 
+      default = 0,
+      action=function(x) fuse = x end }
+  
+  
   params:default()
+  set_foundation()
 
   clock.run(step)
 
@@ -461,7 +507,7 @@ end
 
 function enc(n, delta)
   if n==1 then
-    mode = util.clamp(mode+delta,1,6)
+    mode = util.clamp(mode+delta,1,7)
     if mode == 5 then 
       local p = one.length
       edit_pos = util.clamp(edit_pos+delta,1,p) 
@@ -514,6 +560,23 @@ function enc(n, delta)
       edit_pos = util.clamp(edit_pos+delta,1,p)
     elseif n==3 then
       params:delta("note_mod_"..edit_pos, delta)
+    end
+  elseif mode == 6 then --xplsn
+    if fuse==0 then fuse_lit=false end
+      if n==2 then
+        params:delta("fuse", delta)
+      elseif n==3 then
+        xplsn_type=util.clamp(xplsn_type+delta,1,5)
+      end
+    if fuse_lit == false and fuse > 0 then
+      fuse_lit=true 
+    elseif fuse_lit == true and fuse == 0 then
+      fuse_lit=false
+    end
+    if fuse == 17 then 
+      fuse_repeat = true
+    else
+      fuse_repeat = false
     end
   end
   redraw()
@@ -583,7 +646,7 @@ function key(n,z)
         set_random_note_mod()
       end
     end
-  elseif mode == 6 then
+  elseif mode == 7 then --fndtn
     if n==2 and z==1 then
       set_foundation()
     elseif n==3 and z==1 then
@@ -598,6 +661,18 @@ function redraw()
   screen.clear()
   screen.line_width(1)
   screen.aa(0)
+  if display_explosion==true then
+      for i=1,7 do
+        x=math.random(0,128)
+        y=math.random(0,64)
+        r=math.random(5,25)
+        screen.move(x+r,y)
+        screen.circle(x,y,r)
+        screen.level(1)
+      end
+      display_explosion = false
+      screen.stroke()
+  end
   -- edit point
   if mode==1 then
     screen.move(26 + edit_pos*6, edit_ch==1 and 33 or 63)
@@ -721,14 +796,52 @@ function redraw()
   elseif mode==6 then
     screen.level(1)
     screen.move(0,30)
-    screen.text("set")
-    screen.level(15)
+    screen.text("fuse")
+    if fuse ==17 then
+      fuse_display = "rpt"
+      fuse_screen_level = 15
+    elseif fuse==0 then
+      fuse_display = "off"
+      fuse_screen_level = 2
+    else
+      fuse_display = fuse
+      fuse_screen_level = 15
+    end
+    screen.level(fuse_screen_level)
     screen.move(0,40)
-    screen.text(foundation_set==true and "yes" or "no") 
+    screen.text(fuse_display) 
+    screen.move(0,50)
+    screen.level(1)
+    screen.text("type")
+    screen.move(0,60)
+    screen.level(15)
+    screen.text(xplsn_types[xplsn_type])
+  elseif mode==7 then --fndtn
+    screen.level(1)
+    screen.move(0,30)
+    screen.line(foundation_one.length,30)
+    for i=1,foundation_one.length do
+      if foundation_one.data[i] > 0 then
+        screen.move(i-1,30 - foundation_one.data[i])
+        screen.line_rel(1,0)
+      end
+      if foundation_three.note_mod[i] ~= 0 and foundation_three.note_mod_trig[i] > 0 then
+        screen.move(0 + i, 31)
+        screen.line_rel(1,0)
+      end
+    end
+    screen.move(0,60)
+    screen.line(foundation_two.length,60)
+    for i=1,foundation_two.length do
+      if foundation_two.data[i] > 0 then
+        screen.move(i-1,60 - foundation_two.data[i])
+        screen.line_rel(1,0)
+      end
+    end
+    
+
+    
   end
-
-
-
   screen.update()
 end
 
