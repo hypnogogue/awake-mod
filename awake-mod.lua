@@ -1,5 +1,5 @@
 -- awake-mod
--- 1.0.4 @shoggoth
+-- 1.0.5 @shoggoth
 -- llllllll.co/t/awake-mod
 -- based off 
 -- 2.4.0 awake by @tehn
@@ -41,10 +41,13 @@
 -- E3 mod value
 --
 -- XPLSN
--- K2 set fuse
--- K3 set type
+-- K2 light fuse/snuff fuse
+-- K3 light quick fuse
+-- E2 set fuse
+-- E3 set type
 --
 -- FNDTN
+-- E2 select foundation
 -- K2 set foundation
 -- K3 reset to foundation
 
@@ -65,7 +68,7 @@ alt = false
 mode = 1
 mode_names = {"STEP","LOOP","SOUND","OPTION","MOD","XPLSN","FNDTN"}
 
-xplsn_types = {"morph1","morph2","stp-rnd","mod-rnd","fndtn"}
+xplsn_types = {"morph1","morph2","stp-rnd","mod-rnd","fndtn1","fndtn2","fndtn3","fndtn4"}
 xplsn_type = 1
 display_explosion = false
 
@@ -158,49 +161,36 @@ set_loop_data = function(which, step, val)
   params:set(which.."_data_"..step, val)
 end
 
-function set_foundation()
-  foundation_one = {
-    pos = 0,
-    length = one.length,
-    data = {}
-  }
-  foundation_two = {
-    pos = 0,
-    length = two.length,
-    data = {}
-  }
-  foundation_three = {
-    note_mod = {},
-    note_mod_trig={},
-    note_mod_trig_count={}
-  }
-  for i=1,16 do
-    foundation_one.data[i]=one.data[i]
-    foundation_two.data[i]=two.data[i]
-    foundation_three.note_mod[i]=three.note_mod[i]
-    foundation_three.note_mod_trig[i]=three.note_mod_trig[i]
-  end
-  
-  foundation_set = true
+function set_foundation(p)
+  fndtn_preset ={}
+  fndtn_preset.one = deepcopy(one)
+  fndtn_preset.two = deepcopy(two)
+  three.note_mod_trig_count = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
+  fndtn_preset.three = deepcopy(three)
+  foundations[p] = deepcopy(fndtn_preset)
 end
 
+function deepcopy(orig)
+    local orig_type = type(orig)
+    local copy
+    if orig_type == 'table' then
+        copy = {}
+        for orig_key, orig_value in next, orig, nil do
+            copy[deepcopy(orig_key)] = deepcopy(orig_value)
+        end
+        setmetatable(copy, deepcopy(getmetatable(orig)))
+    else -- number, string, boolean, etc
+        copy = orig
+    end
+    return copy
+end
 
-function reset_to_foundation()
-  reset_foundation = false
-  if foundation_set==false then return end
-  --start_foundation_animation = true
-  --fndtn_frame=10
-  one.pos = 0
-  one.length = foundation_one.length
-  two.pos = 0
-  two.length = foundation_two.length
-  three.note_mod_trig_count = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-  for i=1,16 do
-    one.data[i]=foundation_one.data[i]
-    two.data[i]=foundation_two.data[i]
-    three.note_mod[i]=foundation_three.note_mod[i]
-    three.note_mod_trig[i]=foundation_three.note_mod_trig[i]
-  end
+function reset_to_foundation(fndtn_num)
+foundations[fndtn_num].one.pos=one.pos
+foundations[fndtn_num].two.pos=two.pos
+one = deepcopy(foundations[fndtn_num].one)
+two = deepcopy(foundations[fndtn_num].two)
+three = deepcopy(foundations[fndtn_num].three)
     for i=1,16 do
     params:set("one_length",one.length)
     params:set("two_length",two.length)
@@ -263,7 +253,13 @@ function explosion()
   elseif xplsn_type == 4 then
     set_random_note_mod()
   elseif xplsn_type == 5 then
-    reset_foundation = true
+    reset_to_foundation(1)
+  elseif xplsn_type == 6 then
+    reset_to_foundation(2)
+  elseif xplsn_type == 7 then
+    reset_to_foundation(3)
+  elseif xplsn_type == 8 then
+    reset_to_foundation(4)
   end
   if fuse_repeat==false then
     fuse_lit=false
@@ -281,13 +277,10 @@ function step()
     clock.sync(1/params:get("step_div"))
 
     all_notes_off()
-    if reset_foundation == true then reset_to_foundation() end
-
-
     one.pos = one.pos + 1
     if one.pos > one.length then 
       one.pos = 1 
-      if fuse_repeat then
+      if fuse_repeat and fuse_lit then
         explosion()
       elseif fuse_lit then 
         params:delta("fuse",-1) 
@@ -444,10 +437,15 @@ function init()
   params:add{type = "number", id= "fuse", name = "fuse", min=0, max=17, 
       default = 0,
       action=function(x) fuse = x end }
+  fuse_repeat = false
   
   
   params:default()
-  set_foundation()
+  foundations={}
+  fndtn_num=1
+  for i=1,4 do
+    set_foundation(i)
+  end
 
   clock.run(step)
 
@@ -562,21 +560,20 @@ function enc(n, delta)
       params:delta("note_mod_"..edit_pos, delta)
     end
   elseif mode == 6 then --xplsn
-    if fuse==0 then fuse_lit=false end
       if n==2 then
         params:delta("fuse", delta)
       elseif n==3 then
-        xplsn_type=util.clamp(xplsn_type+delta,1,5)
+        xplsn_type=util.clamp(xplsn_type+delta,1,8)
       end
-    if fuse_lit == false and fuse > 0 then
-      fuse_lit=true 
-    elseif fuse_lit == true and fuse == 0 then
-      fuse_lit=false
-    end
     if fuse == 17 then 
       fuse_repeat = true
     else
       fuse_repeat = false
+    end
+    if fuse==0 then fuse_lit=false end
+  elseif mode == 7 then --fndtn
+    if n==2 then
+      fndtn_num = util.clamp(fndtn_num+delta,1,4)
     end
   end
   redraw()
@@ -646,11 +643,23 @@ function key(n,z)
         set_random_note_mod()
       end
     end
+  elseif mode == 6 then --xplsn
+      if n==2 and z==1 then
+        if fuse_lit == true then
+          fuse_lit = false
+        elseif fuse > 0 then
+          fuse_lit = true
+        end
+      elseif n==3 and z==1 then
+        fuse_lit=true
+        params:set("fuse",1)
+        fuse_repeat = false
+      end
   elseif mode == 7 then --fndtn
     if n==2 and z==1 then
-      set_foundation()
+      set_foundation(fndtn_num)
     elseif n==3 and z==1 then
-      reset_foundation = true
+     reset_to_foundation(fndtn_num)
     end
   end
 
@@ -795,8 +804,13 @@ function redraw()
     screen.text(trig_display)
   elseif mode==6 then
     screen.level(1)
+    if fuse_lit == true then
+      fuse_text="fuse*"
+    else
+      fuse_text="fuse"
+    end
     screen.move(0,30)
-    screen.text("fuse")
+    screen.text(fuse_text)
     if fuse ==17 then
       fuse_display = "rpt"
       fuse_screen_level = 15
@@ -818,23 +832,25 @@ function redraw()
     screen.text(xplsn_types[xplsn_type])
   elseif mode==7 then --fndtn
     screen.level(1)
+    screen.move(0,18)
+    screen.text(fndtn_num)
     screen.move(0,30)
-    screen.line(foundation_one.length,30)
-    for i=1,foundation_one.length do
-      if foundation_one.data[i] > 0 then
-        screen.move(i-1,30 - foundation_one.data[i])
+    screen.line(foundations[fndtn_num].one.length,30)
+    for i=1,foundations[fndtn_num].one.length do
+      if foundations[fndtn_num].one.data[i] > 0 then
+        screen.move(i-1,30 - foundations[fndtn_num].one.data[i])
         screen.line_rel(1,0)
       end
-      if foundation_three.note_mod[i] ~= 0 and foundation_three.note_mod_trig[i] > 0 then
+      if foundations[fndtn_num].three.note_mod[i] ~= 0 and foundations[fndtn_num].three.note_mod_trig[i] > 0 then
         screen.move(0 + i, 31)
         screen.line_rel(1,0)
       end
     end
     screen.move(0,60)
-    screen.line(foundation_two.length,60)
-    for i=1,foundation_two.length do
-      if foundation_two.data[i] > 0 then
-        screen.move(i-1,60 - foundation_two.data[i])
+    screen.line(foundations[fndtn_num].two.length,60)
+    for i=1,foundations[fndtn_num].two.length do
+      if foundations[fndtn_num].two.data[i] > 0 then
+        screen.move(i-1,60 - foundations[fndtn_num].two.data[i])
         screen.line_rel(1,0)
       end
     end
