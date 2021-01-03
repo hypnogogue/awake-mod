@@ -1,5 +1,5 @@
 -- awake-mod
--- 1.0.5 @shoggoth
+-- 1.0.6 @shoggoth
 -- llllllll.co/t/awake-mod
 -- based off 
 -- 2.4.0 awake by @tehn
@@ -32,6 +32,8 @@
 --
 -- OPTION
 -- *toggle
+-- K2 octave down
+-- K3 octave up
 -- E2/E3 changes
 --
 -- MOD
@@ -55,6 +57,10 @@
 engine.name = 'PolyPerc'
 
 hs = include('lib/halfsecond')
+keyboard = include('lib/keyboard')
+fndtn_lib = include('lib/fndtn')
+xplsn_lib = include('lib/xplsn')
+mod_lib = include('lib/mod')
 
 MusicUtil = require "musicutil"
 
@@ -68,9 +74,7 @@ alt = false
 mode = 1
 mode_names = {"STEP","LOOP","SOUND","OPTION","MOD","XPLSN","FNDTN"}
 
-xplsn_types = {"morph1","morph2","stp-rnd","mod-rnd","fndtn1","fndtn2","fndtn3","fndtn4"}
-xplsn_type = 1
-display_explosion = false
+
 
 one = {
   pos = 0,
@@ -83,40 +87,6 @@ two = {
   length = 7,
   data = {5,7,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
 }
-
-three = {
-  note_mod = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-  note_mod_trig = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-  note_mod_trig_count = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-}
-
-function clear_note_mod()
-  three = {
-    note_mod = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    note_mod_trig = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0},
-    note_mod_trig_count = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-  }
-  for i=1,16 do
-    params:set("note_mod_"..i, 0)
-    params:set("mod_trig_"..i, 0)
-  end
-end
-
-function set_random_note_mod()
-  for i=1,16 do
-    r1 = math.random(-7,9)
-    params:set("note_mod_"..i, r1)
-    three.note_mod[i] = r1
-    --coin flip if mod is active, if active choose a division of 2 or higher
-    if math.random(0,1) == 1 then
-      r2 = math.random(2,8)
-    else
-      r2 = 0
-    end
-    params:set("mod_trig_"..i, r2)
-    three.note_mod_trig[i] = r2
-  end
-end
 
 function add_pattern_params() 
   params:add_separator()
@@ -161,46 +131,6 @@ set_loop_data = function(which, step, val)
   params:set(which.."_data_"..step, val)
 end
 
-function set_foundation(p)
-  fndtn_preset ={}
-  fndtn_preset.one = deepcopy(one)
-  fndtn_preset.two = deepcopy(two)
-  three.note_mod_trig_count = {0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0}
-  fndtn_preset.three = deepcopy(three)
-  foundations[p] = deepcopy(fndtn_preset)
-end
-
-function deepcopy(orig)
-    local orig_type = type(orig)
-    local copy
-    if orig_type == 'table' then
-        copy = {}
-        for orig_key, orig_value in next, orig, nil do
-            copy[deepcopy(orig_key)] = deepcopy(orig_value)
-        end
-        setmetatable(copy, deepcopy(getmetatable(orig)))
-    else -- number, string, boolean, etc
-        copy = orig
-    end
-    return copy
-end
-
-function reset_to_foundation(fndtn_num)
-foundations[fndtn_num].one.pos=one.pos
-foundations[fndtn_num].two.pos=two.pos
-one = deepcopy(foundations[fndtn_num].one)
-two = deepcopy(foundations[fndtn_num].two)
-three = deepcopy(foundations[fndtn_num].three)
-    for i=1,16 do
-    params:set("one_length",one.length)
-    params:set("two_length",two.length)
-    params:set("one_data_"..i,one.data[i])
-    params:set("two_data_"..i,two.data[i])
-    params:set("note_mod_"..i,three.note_mod[i])
-    params:set("mod_trig_"..i,three.note_mod_trig[i])
-  end
-end
-
 local midi_out_device
 local midi_out_channel
 
@@ -243,29 +173,7 @@ function morph(loop, which)
   end
 end
 
-function explosion()
-  if xplsn_type == 1 then
-    morph(one,"one")
-  elseif xplsn_type == 2 then
-    morph(two,"two")
-  elseif xplsn_type == 3 then
-    random()
-  elseif xplsn_type == 4 then
-    set_random_note_mod()
-  elseif xplsn_type == 5 then
-    reset_to_foundation(1)
-  elseif xplsn_type == 6 then
-    reset_to_foundation(2)
-  elseif xplsn_type == 7 then
-    reset_to_foundation(3)
-  elseif xplsn_type == 8 then
-    reset_to_foundation(4)
-  end
-  if fuse_repeat==false then
-    fuse_lit=false
-  end
-  display_explosion=true
-end
+
 
 function random()
   for i=1,one.length do set_loop_data("one", i, math.floor(math.random()*9)) end
@@ -625,8 +533,10 @@ function key(n,z)
       snd_sel = util.clamp(snd_sel + 2,1,NUM_SND_PARAMS-1)
     end
   elseif mode == 4 then --option
-    if n==2 then
-    elseif n==3 then
+    if n==2 and z==1 then
+      params:delta("root_note",-12)
+    elseif n==3 and z==1 then
+     params:delta("root_note",12)
     end
   elseif mode == 5 then --mod
     if not alt==true then
@@ -671,16 +581,7 @@ function redraw()
   screen.line_width(1)
   screen.aa(0)
   if display_explosion==true then
-      for i=1,7 do
-        x=math.random(0,128)
-        y=math.random(0,64)
-        r=math.random(5,25)
-        screen.move(x+r,y)
-        screen.circle(x,y,r)
-        screen.level(1)
-      end
-      display_explosion = false
-      screen.stroke()
+    draw_explosion()
   end
   -- edit point
   if mode==1 then
