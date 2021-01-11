@@ -1,6 +1,6 @@
 # awake-mod
 
-v1.0.6
+v1.0.7
 Expands on the original Awake app for Norns by adding pages/features:
 MOD - per-step transpose “scheduling” on every 2nd/3rd/etc. time the step is active
 XPLSN - set fuse and various ‘end of sequence’ mod effects are available
@@ -61,6 +61,10 @@ morph2 - bottom sequence is morphed
 stp-rnd - top/bottom sequences are randomized
 mod-rnd - mod steps are randomized
 fndtn1-4 - sequence resets to foundation preset 1-4
+mirror - all step positions are mirror image
+oct-up - shift seq up 1 oct
+oct-down - shift seq down 1 oct
+fractal - controlled variation of fndtn 1 
 
 –FNDTN–
 K2 to set foundation
@@ -73,10 +77,14 @@ F1 to F7 - mapped to each of the pages (STEP, LOOP, etc..)
 F9 to F12 - reset to FNDTN 1 - 4 
 Shift + F9 to F12 - set FNDTN 1 - 4
 
-Num pad 0 - K1
-Num pad 1 - K2
-Num pad 2 - K3
+alt - K1
+< - K2
+> - K3
 
 Left/right arrow - E2
 Up/down arrow - E3
+
+delete - disable step/mod step
+- (dash) - oct down
+= (equal) - oct up
 

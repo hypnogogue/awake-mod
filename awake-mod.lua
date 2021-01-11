@@ -1,5 +1,5 @@
 -- awake-mod
--- 1.0.6 @shoggoth
+-- 1.0.7 @shoggoth
 -- llllllll.co/t/awake-mod
 -- based off 
 -- 2.4.0 awake by @tehn
@@ -138,8 +138,8 @@ local scale_names = {}
 local notes = {}
 local active_notes = {}
 
-local edit_ch = 1
-local edit_pos = 1
+edit_ch = 1
+edit_pos = 1
 
 snd_sel = 1
 snd_names = {"cut","gain","pw","rel","fb","rate", "pan", "delay_pan"}
@@ -149,10 +149,11 @@ NUM_SND_PARAMS = #snd_params
 notes_off_metro = metro.init()
 
 function build_scale()
-  notes = MusicUtil.generate_scale_of_length(params:get("root_note"), params:get("scale_mode"), 16)
-  local num_to_add = 16 - #notes
+  scale_length = 24
+  notes = MusicUtil.generate_scale_of_length(params:get("root_note"), params:get("scale_mode"), scale_length)
+  local num_to_add = scale_length - #notes
   for i = 1, num_to_add do
-    table.insert(notes, notes[16 - num_to_add])
+    table.insert(notes, notes[scale_length - num_to_add])
   end
 end
 
@@ -219,10 +220,10 @@ function step()
 
     if (one.data[one.pos] > 0 or mod_play==1) and mod_mute==0 then
       note_sum=one.data[one.pos]+two.data[two.pos]+note_mod
-      if note_sum > 16 then
-        note_sum = note_sum - 16 --mods exceeds scale, wraparound note
+      if note_sum > scale_length then
+        note_sum = note_sum - scale_length --mods exceeds scale, wraparound note
       elseif note_sum <= 0 then
-        note_sum = note_sum + 16 --mods under scale threshold, wraparound note
+        note_sum = note_sum + scale_length --mods under scale threshold, wraparound note
       end
       local note_num = notes[note_sum]
       local freq = MusicUtil.note_num_to_freq(note_num)
@@ -471,7 +472,7 @@ function enc(n, delta)
       if n==2 then
         params:delta("fuse", delta)
       elseif n==3 then
-        xplsn_type=util.clamp(xplsn_type+delta,1,8)
+        xplsn_type=util.clamp(xplsn_type+delta,1,xplsn_max)
       end
     if fuse == 17 then 
       fuse_repeat = true

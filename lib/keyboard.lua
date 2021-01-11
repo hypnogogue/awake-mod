@@ -29,11 +29,11 @@ function keyboard.event(type, code, val)
   elseif code == 88 and val ==1 then --F12
     fndtn_num=4
     kb_fndtn(fndtn_num)
-  elseif code == 82 then -- num pad 0
+  elseif code == 56 or code == 100 then -- alt
     key(1,(val == 0 and 0 or 1)) 
-  elseif code == 79 then --num pad 1
+  elseif code == 51 then --<
     key(2,val)
-  elseif code == 80 then -- num pad 2
+  elseif code == 52 then -- >
     key(3,val)
   elseif code == 105 and val == 1 then --left arrow
     enc(2,-1)
@@ -49,7 +49,21 @@ function keyboard.event(type, code, val)
     else
       shift_active=true
     end
-  end
+  elseif code == 111 and val == 1 then --delete
+    if mode == 1 then
+      if edit_ch == 1 then
+        params:set("one_data_"..edit_pos, 0)
+      else
+        params:set("two_data_"..edit_pos, 0)
+      end
+    elseif mode == 5 then
+      params:set("note_mod_"..edit_pos, 0)
+    end
+  elseif code == 12 and val == 1 then -- dash 
+    params:delta("root_note",-12)
+  elseif code == 13 and val == 1 then -- =
+    params:delta("root_note",12)
+end
   
   print(type, code, val)
   
