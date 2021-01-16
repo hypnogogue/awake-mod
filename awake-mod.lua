@@ -1,5 +1,5 @@
 -- awake-mod
--- 1.0.7 @shoggoth
+-- 1.0.8 @shoggoth
 -- llllllll.co/t/awake-mod
 -- based off 
 -- 2.4.0 awake by @tehn
@@ -57,7 +57,7 @@
 engine.name = 'PolyPerc'
 
 hs = include('lib/halfsecond')
-keyboard = include('lib/keyboard')
+kybrd = include('lib/kybrd')
 fndtn_lib = include('lib/fndtn')
 xplsn_lib = include('lib/xplsn')
 mod_lib = include('lib/mod')
@@ -91,7 +91,6 @@ two = {
 function add_pattern_params() 
   params:add_separator()
   params:add_group("pattern 1",17)
-  
   params:add{type = "number", id = "one_length", name = "length", min=1, max=16, 
     default = one.length,
     action=function(x) one.length = x end }
@@ -103,7 +102,6 @@ function add_pattern_params()
   end
 
   params:add_group("pattern 2",17)
-  
   params:add{type = "number", id = "two_length", name = "length",  min=1, max=16, 
     default = two.length,
     action=function(x)two.length = x end}
@@ -196,6 +194,7 @@ function step()
         if fuse == 0 then explosion() end
       end
     end
+    
     two.pos = two.pos + 1
     if two.pos > two.length then two.pos = 1 end
     
@@ -215,9 +214,6 @@ function step()
       mod_mute=1
     end
     
-
-      
-
     if (one.data[one.pos] > 0 or mod_play==1) and mod_mute==0 then
       note_sum=one.data[one.pos]+two.data[two.pos]+note_mod
       if note_sum > scale_length then
@@ -252,7 +248,6 @@ function step()
         end
       end
     end
-
     if g then
       gridredraw()
     end
@@ -756,9 +751,6 @@ function redraw()
         screen.line_rel(1,0)
       end
     end
-    
-
-    
   end
   screen.update()
 end

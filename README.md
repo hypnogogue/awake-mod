@@ -1,6 +1,6 @@
 # awake-mod
 
-v1.0.7
+v1.0.8
 Expands on the original Awake app for Norns by adding pages/features:
 MOD - per-step transpose “scheduling” on every 2nd/3rd/etc. time the step is active
 XPLSN - set fuse and various ‘end of sequence’ mod effects are available

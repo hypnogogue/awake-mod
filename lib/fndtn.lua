@@ -1,4 +1,19 @@
-function set_foundation(p)
+--todo: add all fndtn values to params 
+function add_fndtn_params()
+    params:add_separator()
+    params:add_group("fndtn 1",17)
+    
+    params:add{type = "number", id = "fndtn_one_length", name = "length", min=1, max=16, 
+      default = one.length }
+  
+    for i=1,16 do
+      params:add{type = "number", id= ("fndtn_one_data_"..i), name = ("fndtn_one_data "..i), min=0, max=8, 
+        default = one.data[i]}
+    end
+  end
+  
+  
+  function set_foundation(p)
     fndtn_preset ={}
     fndtn_preset.one = deepcopy(one)
     fndtn_preset.two = deepcopy(two)
@@ -28,7 +43,7 @@ function set_foundation(p)
   one = deepcopy(foundations[fndtn_num].one)
   two = deepcopy(foundations[fndtn_num].two)
   three = deepcopy(foundations[fndtn_num].three)
-      for i=1,16 do
+    for i=1,16 do
       params:set("one_length",one.length)
       params:set("two_length",two.length)
       params:set("one_data_"..i,one.data[i])
